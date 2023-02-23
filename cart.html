@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart Page</title>
+  <style>
+    /* All Your css for Cart page goes here  */
+  </style>
+</head>
+
+<body>
+  <div class="nav">
+    <h1>Web E-Commerce</h1>
+    <a href="./index.html">Home</a>
+    <a href="./cart.html">Cart</a>
+  </div>
+  <h1 id="total">
+    Your total order value is :- <span id="cart-total">0</span>
+  </h1>
+  <div id="cart-container">
+    <!-- Here Append All the Cart Cards here-->
+  </div>
+</body>
+<script type="module">
+
+  let cart = document.getElementById("cart-container");
+
+  let arr = JSON.parse(localStorage.getItem("cart"));
+
+
+  fetchdata();
+  async function fetchdata() {
+    try {
+      let data = [];
+      for (let i = 0; i < arr.length; i++) {
+        let res = await fetch(`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-products/${arr[i]}`);
+        res = await res.json();
+        data.push(res.data);
+      }
+      display(data);
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
+
+  function display(data) {
+    // console.log(data)
+    let str = "";
+    data.forEach((el, id) => {
+      str += `<div class="card" data-id="${el.id}">
+            <img src=${el.image} alt="photo">
+            <h3 class="name">${el.title}</h3>
+            <h4 class="brand">${el.brand}</h4>
+            <h5 class="category">${el.category}</h5>
+            <h5 class="price">${el.price}</h5>
+            <button class="addToCart">Add To Cart</button>
+          </div>`
+    })
+    cart.innerHTML = str;
+    calculateTotal(data);
+  }
+  function calculateTotal(data){
+    console.log(data)
+    let sum =0;
+    for(let i=0; i<data.length; i++){
+      sum += Number(data[i].price);
+    }
+    document.getElementById("cart-total").innerText = sum
+  }
+
+</script>
+
+</html>

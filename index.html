@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page</title>
+  <style>
+    /* All CSS For Home Page Goes Here  */
+    main {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    #product-container>div {
+      width: 100%;
+      display: grid;
+      /* border: 1px solid black; */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="nav">
+    <h1>Web E-Commerce</h1>
+    <a href="./index.html">Home</a>
+    <a href="./cart.html">Cart</a>
+  </div>
+  <h1 id="alert"></h1>
+  <main>
+    <div id="filter">
+      <div id="brand-filter">
+        <h2>Filter By Brands</h2>
+        <div>
+          <input type="checkbox" name="brand" id="roadster" value="roadster"  />
+          <p>Roadster</p>
+        </div>
+        <div>
+          <input type="checkbox" name="brand" id="blackberrys" value="blackberrys" />
+          <p>Blackberrys</p>
+        </div>
+        <div>
+          <input type="checkbox" name="brand" id="van-heusen" value="van-heusen" />
+          <p>Van Heusen</p>
+        </div>
+        <div>
+          <input type="checkbox" name="brand" id="allen-solly" value="allen-solly" />
+          <p>Allen Solly</p>
+        </div>
+        <div>
+          <input type="checkbox" name="brand" id="twills" value="twills" />
+          <p>Twills</p>
+        </div>
+      </div>
+      <div id="category-filter">
+        <h2>Filter By Categories</h2>
+        <div>
+          <input type="checkbox" name="category" id="men" value="men"/>
+          <p>Men</p>
+        </div>
+        <div>
+          <input type="checkbox" name="category"  id="women" value="women"/>
+          <p>Women</p>
+        </div>
+        <div>
+          <input type="checkbox" name="category" id="homedecor" value="homedecor"/>
+          <p>Homedecor</p>
+        </div>
+        <div>
+          <input type="checkbox" name="category" id="kids" value="kids"/>
+          <p>Kids</p>
+        </div>
+      </div>
+    </div>
+    <div id="product-container">
+      <div>
+        <!-- Here Append All the Products  -->
+      </div>
+    </div>
+  </main>
+</body>
+<!-- <script type="module">
+
+  let productContainer = document.querySelector("#product-container>div");
+  let brandFilter = document.querySelectorAll("#brand-filter input");
+  let categoryfilter = document.querySelectorAll("#category-filter input");
+  let brandTag = document.querySelectorAll("#brand-filter p")
+  let categoryTag = document.querySelectorAll("#category-filter p")
+
+  // let data = fetch("https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-products");
+  // data.then((data)=>{
+  //   return data.json();
+  // }).then((res)=>{
+  //   console.log(res)
+  // })
+
+  let globalDataArr = [];
+  window.addEventListener("load", () => {
+    fetchAndRender();
+  })
+  async function fetchAndRender() {
+    try {
+      let res = await fetch("https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-products")
+      res = await res.json();
+      console.log(res);
+      globalDataArr = res.data;
+      display(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  function display(data) {
+    // globalDataArr = data;
+    // productContainer.innerHTML = "";
+    let str = "";
+    data.forEach((el, id) => {
+      str += `<div class="card" data-id="${el.id}">
+            <img src=${el.image} alt="photo">
+            <h3 class="name">${el.title}</h3>
+            <h4 class="brand">${el.brand}</h4>
+            <h5 class="category">${el.category}</h5>
+            <h5 class="price">${el.price}</h5>
+            <button class="addToCart">Add To Cart</button>
+          </div>`
+    })
+    productContainer.innerHTML = str;
+    let btn = document.querySelectorAll(".addToCart");
+    for (let i = 0; i < btn.length; i++) {
+      btn[i].addEventListener("click", () => {
+        let getArr = JSON.parse(localStorage.getItem("cart")) || [];
+        if (checkDuplicate(getArr, dataArr[i].id)) {
+          getArr.push(dataArr[i].id)
+          localStorage.setItem("cart", JSON.stringify(getArr))
+          document.getElementById("alert").innerText = "Product added to The cart"
+        } else {
+          document.getElementById("alert").innerText = "Product already in the cart"
+        }
+      })
+    }
+    filterTagCollector();
+  }
+  function checkDuplicate(arr, idx) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] == idx) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function filterTagCollector() {
+    let brands = {}, cat = {};
+    for (let i = 0; i < brandFilter.length; i++) {
+      brandFilter[i].addEventListener("click", () => {
+        if (brandFilter[i].checked) {
+          brands[brandTag[i].innerText.toLowerCase().split(" ").join("-")] = 1;
+          filterOutProduct(brands, cat);
+        } else {
+          delete brands[brandTag[i].innerText.toLowerCase().split(" ").join("-")];
+          filterOutProduct(brands, cat);
+        }
+      })
+    }
+    for (let i = 0; i < categoryfilter.length; i++) {
+      categoryfilter[i].addEventListener("change", () => {
+        if (categoryfilter[i].checked) {
+          cat[categoryTag[i].innerText.toLowerCase()] = 1
+          filterOutProduct(brands, cat);
+        } else {
+          delete cat[categoryTag[i].innerText.toLowerCase()];
+          filterOutProduct(brands, cat);
+        }
+      })
+    }
+    console.log(brands, cat);
+  }
+  let filterDataArr=[];
+  function filterOutProduct(brands, cat) 
+  {
+    let prevArr = [];
+    if (Object.keys(brands).length != 0 && Object.keys(cat).length != 0) {
+      prevArr = globalDataArr.filter((el, i)=>{
+        return brands[el.brand]==1 && cat[el.category]==1
+      })
+      // console.log(filterDataArr)
+      // display(filterDataArr);
+    } else if (Object.keys(brands).length == 0 && Object.keys(cat).length == 0) {
+      prevArr = [...globalDataArr];
+      // console.log(globalDataArr)
+      // display(globalDataArr);
+    } else if (Object.keys(brands).length == 0) {
+      prevArr = globalDataArr.filter((el, i)=>{
+        return cat[el.category]==1
+      })
+      // console.log(filterDataArr)
+      // display(filterDataArr);
+    } else if (Object.keys(cat).length == 0) {
+      prevArr = globalDataArr.filter((el, i)=>{
+        return brands[el.brand]==1
+      })
+      // console.log(filterDataArr)
+      // display(filterDataArr);
+    }
+    // console.log(prevArr)
+    filterDataArr= [...prevArr];
+    console.log(filterDataArr);
+    display(filterDataArr);
+  }
+
+
+
+</script> -->
+
+  <script src="./index.js"></script>
+</html>
